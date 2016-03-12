@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html><head>
+<title>Annotation Demo</title>
+
+<script src="http://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.4.0/fabric.min.js">
+</script>
+
+    <style>
+      pre { margin-left: 15px !important }
+</style>  
+</head>
+
+<body>
+<button id="clear-canvas" class="btn btn-info">Clear Canvas</button><br>
+<button id="get-json" class="btn btn-info">Get JSON</button><br>
+ <label for="drawing-color">Line color:</label>
+    <input type="color" value="#f55f55" id="color-select">
+  <label for="drawing-line-width">Line width:</label>
+   <p id="width">5</p> <input type="range" value="5" min="0" max="150" id="width-select"><br>
+
+<h2>Canvas for drawing</h2>
+
+    
+<div style="width: 546px; height: 546px; position: relative; -moz-user-select: none;" class="canvas-container"><canvas class="lower-canvas" id="c" width="545.4545617103577" height="545.4545617103577" style="border: 1px solid rgb(170, 170, 170); position: relative; width: 500px; height: 500px; left: 0px; top: 0px; -moz-user-select: none;"></canvas></div>
+
+<h3>This element shows the JSON output, to see deserialization, clear the canvas and press deserialize</h3>
+<div>
+<p id = "set-json"></p>
+</div>
+<button id="clear-json" class="btn btn-info">Clear JSON output</button><br>
+<button id="deserialize-json" class="btn btn-info">Deserialize JSON output</button><br>
+<button id="insert-text" class="btn btn-info">Insert Text: OFF</button><br>
+
+
+<script id="main">(function() {
+  var $ = function(id){return document.getElementById(id)};
+
+  var canvas = this.__canvas = new fabric.Canvas('c', {
+    isDrawingMode: true
+  });
+
+  canvas.freeDrawingBrush.color = "#f55";
+  canvas.freeDrawingBrush.width = 5;
+
+
+  var clearCanvas = $('clear-canvas');
+  var clearSerialOutput = $('clear-json');
+  var getJson = $('get-json');
+  var setJson = $('set-json');
+  var deserialize = $('deserialize-json');
+  var colorselector = $('color-select');
+  var widthselector = $('width-select');
+  var widthdisplay = $('width');
+  var inserttext = $('insert-text');
+  var flag = 0;
+  colorselector.onchange = function() {
+      canvas.freeDrawingBrush.color = this.value;
+    };
+
+  widthselector.onchange = function() {
+      canvas.freeDrawingBrush.width = parseInt(widthselector.value, 10) || 1;
+      widthdisplay.innerHTML = widthselector.value;
+  };
+
+
+  getJson.onclick = function() { 
+    console.log(JSON.stringify(canvas));
+    setJson.innerHTML = JSON.stringify(canvas);
+    console.log("----------------------------------");
+    };    
+  
+  clearCanvas.onclick = function() { 
+    canvas.clear();
+    };
+  
+  clearSerialOutput.onclick = function() { 
+    setJson.innerHTML = "";
+    };
+
+  deserialize.onclick = function() {
+    canvas.loadFromJSON(setJson.innerHTML,canvas.renderAll.bind(canvas));
+  };
+  
+  inserttext.onclick = function() {
+    if (flag == 0){
+      flag = 1;
+      inserttext.innerHTML = "Insert Text ON";
+        console.log(flag);
+        canvas.isDrawingMode = !canvas.isDrawingMode;
+
+    }
+    else if (flag == 1){
+      flag = 0;
+      inserttext.innerHTML = "Insert Text OFF";
+        console.log(flag);
+        canvas.isDrawingMode = !canvas.isDrawingMode;
+    }
+  };
+
+  
+  canvas.on('mouse:down', function(options) {
+  if(flag == 1) {
+    if (options.target == null){ 
+        addText(options.e);
+        console.log(flag);
+      }
+  }
+  });
+
+
+  function addText(e) {
+
+  var custontxt=new fabric.IText('Start Typing', { 
+  fontFamily: 'helvetica',
+  fontSize:30,
+  fontWeight:400,
+  fill:'red', 
+  fontStyle: 'normal', 
+  top:e.offsetY,
+  cursorDuration:500,    
+  left:e.offsetX,   
+  });  
+  canvas.add(custontxt);
+  custontxt.enterEditing();
+  }
+
+})();
+</script>
